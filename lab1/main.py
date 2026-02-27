@@ -115,7 +115,7 @@ def test_nodes(k):
     a_k, b_k, c_k, d_k, x_nodes_k = cubic_spline_natural(x_k, y_k)
     yy_k = np.array([spline_eval(xi, a_k, b_k, c_k, d_k, x_nodes_k) for xi in xx])
     error = np.abs(yy_k - yy_full)
-    print(f"\n===== {k} вузлів =====")
+    print(f"\n---- {k} ---- вузлів ")
     print("Максимальна похибка:", np.max(error))
     print("Середня похибка:", np.mean(error))
     return yy_k, error
@@ -149,37 +149,27 @@ plt.title("Висота маршруту від кумулятивної від�
 plt.grid(True)
 plt.show()
 
-print("\n===== Характеристики маршруту =====")
+print("Характеристика маршруту:")
+print("---------------------------")
 print("Загальна довжина маршруту (м):", distances[-1])
 total_ascent = sum(max(elevations[i]-elevations[i-1],0) for i in range(1,n))
 print("Сумарний набір висоти (м):", total_ascent)
 total_descent = sum(max(elevations[i-1]-elevations[i],0) for i in range(1,n))
 print("Сумарний спуск (м):", total_descent)
 
+print("---------------------------")
 grad_full = np.gradient(yy_full, xx) * 100
-print("\n===== Аналіз градієнта =====")
 print("Максимальний підйом (%):", np.max(grad_full))
 print("Максимальний спуск (%):", np.min(grad_full))
 print("Середній градієнт (%):", np.mean(np.abs(grad_full)))
 steep_sections = np.where(np.abs(grad_full) > 15)[0]
 print("Кількість ділянок з крутизною > 15%:", len(steep_sections))
 
-plt.figure()
-plt.plot(xx, grad_full)
-plt.title("Градієнт (%)")
-plt.grid(True)
-plt.show()
-
+print("---------------------------")
 mass = 80
 g = 9.81
 energy = mass * g * total_ascent
-print("\n===== Механічна робота =====")
 print("Механічна робота (Дж):", energy)
 print("Механічна робота (кДж):", energy/1000)
 print("Енергія (ккал):", energy / 4184)
 
-plt.figure()
-plt.plot(xx, energy*np.ones_like(xx))
-plt.title("Механічна робота підйому (Дж)")
-plt.grid(True)
-plt.show()
