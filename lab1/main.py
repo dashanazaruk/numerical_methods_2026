@@ -13,12 +13,8 @@ url = (
 )
 
 response = requests.get(url)
-if response.status_code == 200:
-    data = response.json()
-    results = data["results"]
-else:
-    print("Помилка запиту:", response.status_code)
-    results = []
+data = response.json()
+results = data["results"]
 
 n = len(results)
 print("Кількість вузлів:", n)
@@ -29,7 +25,7 @@ for i, point in enumerate(results):
     print(f"{i:2d} | {point['latitude']:.6f} | {point['longitude']:.6f} | {point['elevation']:.2f}")
 
 def haversine(lat1, lon1, lat2, lon2):
-    R = 6371000  # Радіус Землі в метрах
+    R = 6371000
     phi1, phi2 = np.radians(lat1), np.radians(lat2)
     dphi = np.radians(lat2 - lat1)
     dlambda = np.radians(lon2 - lon1)
