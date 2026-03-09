@@ -168,4 +168,3 @@ energy = mass * g * total_ascent
 print("Механічна робота (Дж):", energy)
 print("Механічна робота (кДж):", energy/1000)
 print("Енергія (ккал):", energy / 4184)
-
