@@ -19,7 +19,6 @@ def create_csv():
 
     print("CSV файл створено")
 
-
 def read_csv(filename):
     x = []
     y = []
