@@ -1,4 +1,5 @@
 import random
+import matplotlib.pyplot as plt
 
 def generate_matrix(n):
     A = []
@@ -70,6 +71,7 @@ def simple_iteration(A, b, x0, eps=1e-14, max_iter=10000):
     x = x0[:]
 
     tau = 1 / norm_matrix(A)
+    errors = []
 
     for k in range(max_iter):
         Ax = matrix_vector_mult(A, x)
@@ -80,17 +82,20 @@ def simple_iteration(A, b, x0, eps=1e-14, max_iter=10000):
             x_new[i] = x[i] - tau * (Ax[i] - b[i])
 
         diff = [x_new[i] - x[i] for i in range(n)]
+        error = norm_vector(diff)
+        errors.append(error)
 
-        if norm_vector(diff) < eps:
-            return x_new, k + 1
+        if error < eps:
+            return x_new, k + 1, errors
 
         x = x_new
 
-    return x, max_iter
+    return x, max_iter, errors
 
 def jacobi_method(A, b, x0, eps=1e-14, max_iter=10000):
     n = len(A)
     x = x0[:]
+    errors = []
 
     for k in range(max_iter):
         x_new = [0] * n
@@ -105,17 +110,20 @@ def jacobi_method(A, b, x0, eps=1e-14, max_iter=10000):
             x_new[i] = (b[i] - s) / A[i][i]
 
         diff = [x_new[i] - x[i] for i in range(n)]
+        error = norm_vector(diff)
+        errors.append(error)
 
-        if norm_vector(diff) < eps:
-            return x_new, k + 1
+        if error < eps:
+            return x_new, k + 1, errors
 
         x = x_new
 
-    return x, max_iter
+    return x, max_iter, errors
 
 def seidel_method(A, b, x0, eps=1e-14, max_iter=10000):
     n = len(A)
     x = x0[:]
+    errors = []
 
     for k in range(max_iter):
         x_old = x[:]
@@ -133,48 +141,93 @@ def seidel_method(A, b, x0, eps=1e-14, max_iter=10000):
             x[i] = (b[i] - s1 - s2) / A[i][i]
 
         diff = [x[i] - x_old[i] for i in range(n)]
+        error = norm_vector(diff)
+        errors.append(error)
 
-        if norm_vector(diff) < eps:
-            return x, k + 1
+        if error < eps:
+            return x, k + 1, errors
 
-    return x, max_iter
+    return x, max_iter, errors
 
 def main():
     n = 100
 
+    # Генерація матриці
     A = generate_matrix(n)
     write_matrix("matrix_A.txt", A)
     print("Матрицю A записано у файл matrix_A.txt")
 
+    # Точний розв'язок
     x_true = [2.5] * n
 
+    # Обчислення вектора B
     B = matrix_vector_mult(A, x_true)
     write_vector("vector_B.txt", B)
     print("Вектор B записано у файл vector_B.txt")
 
+    # Зчитування з файлів
     A = read_matrix("matrix_A.txt")
     B = read_vector("vector_B.txt")
 
+    # Початкове наближення
     x0 = [1.0] * n
+
+    # Точність
     eps = 1e-14
 
+    # ---------------------------
+    # Метод простої ітерації
+    # ---------------------------
     print("\nМетод простої ітерації:")
-    x1, it1 = simple_iteration(A, B, x0, eps)
+    x1, it1, errors1 = simple_iteration(A, B, x0, eps)
+
     print("Кількість ітерацій:", it1)
-    print("Перші 10 значень:", x1[:10])
+    print("Перші 10 значень розв'язку:")
+    print(x1[:10])
 
+    # ---------------------------
+    # Метод Якобі
+    # ---------------------------
     print("\nМетод Якобі:")
-    x2, it2 = jacobi_method(A, B, x0, eps)
+    x2, it2, errors2 = jacobi_method(A, B, x0, eps)
+
     print("Кількість ітерацій:", it2)
-    print("Перші 10 значень:", x2[:10])
+    print("Перші 10 значень розв'язку:")
+    print(x2[:10])
 
+    # ---------------------------
+    # Метод Зейделя
+    # ---------------------------
     print("\nМетод Зейделя:")
-    x3, it3 = seidel_method(A, B, x0, eps)
-    print("Кількість ітерацій:", it3)
-    print("Перші 10 значень:", x3[:10])
+    x3, it3, errors3 = seidel_method(A, B, x0, eps)
 
+    print("Кількість ітерацій:", it3)
+    print("Перші 10 значень розв'язку:")
+    print(x3[:10])
+
+    # ---------------------------
+    # Точний розв'язок
+    # ---------------------------
     print("\nТочний розв'язок:")
     print(x_true[:10])
 
+    # ---------------------------
+    # Побудова графіка
+    # ---------------------------
+    plt.figure(figsize=(10, 6))
+
+    plt.plot(errors1, label="Метод простої ітерації")
+    plt.plot(errors2, label="Метод Якобі")
+    plt.plot(errors3, label="Метод Зейделя")
+
+    plt.xlabel("Номер ітерації")
+    plt.ylabel("Похибка")
+    plt.title("Графік збіжності методів")
+
+    plt.yscale("log")  # логарифмічна шкала
+    plt.legend()
+    plt.grid(True)
+
+    plt.show()
 
 main()
